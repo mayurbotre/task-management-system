@@ -9,29 +9,32 @@ import (
 type Config struct {
 	Port string
 
-	// Either set DATABASE_DSN directly, or provide DB_* parts
 	DatabaseDSN string
 	DBHost      string
 	DBPort      string
 	DBUser      string
 	DBPassword  string
 	DBName      string
-	DBParams    string // e.g., parseTime=true&charset=utf8mb4&loc=Local
+	DBParams    string
 }
 
 func Load() *Config {
 	cfg := &Config{
-		Port:        getEnv("PORT", "8080"),
+		Port: getEnv("PORT", "8080"),
+
 		DatabaseDSN: os.Getenv("DATABASE_DSN"),
-		DBHost:      getEnv("DB_HOST", "127.0.0.1"),
-		DBPort:      getEnv("DB_PORT", "3306"),
-		DBUser:      getEnv("DB_USER", "root"),
-		DBPassword:  os.Getenv("DB_PASSWORD"),
-		DBName:      getEnv("DB_NAME", "tasksdb"),
-		DBParams:    getEnv("DB_PARAMS", "parseTime=true&charset=utf8mb4&loc=Local"),
+
+		DBHost:     getEnv("DB_HOST", "127.0.0.1"),
+		DBPort:     getEnv("DB_PORT", "3307"),
+		DBUser:     getEnv("DB_USER", "appuser"),
+		DBPassword: getEnv("DB_PASSWORD", "apppass"),
+		DBName:     getEnv("DB_NAME", "tasksdb"),
+		DBParams:   getEnv("DB_PARAMS", "parseTime=true&charset=utf8mb4&loc=Local"),
 	}
-	log.Printf("[config] PORT=%s DB_HOST=%s DB_NAME=%s DSN_SET=%v",
-		cfg.Port, cfg.DBHost, cfg.DBName, cfg.DatabaseDSN != "")
+
+	log.Printf("[config] PORT=%s DB_HOST=%s DB_PORT=%s DB_NAME=%s DSN_SET=%v",
+		cfg.Port, cfg.DBHost, cfg.DBPort, cfg.DBName, cfg.DatabaseDSN != "")
+
 	return cfg
 }
 

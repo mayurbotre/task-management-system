@@ -23,7 +23,7 @@ type Task struct {
 	ID          uint       `json:"id" gorm:"primaryKey"`
 	Title       string     `json:"title" gorm:"not null;size:200"`
 	Description string     `json:"description" gorm:"size:2000"`
-	Status      Status     `json:"status" gorm:"type:text;default:Pending"`
+	Status      Status     `json:"status" gorm:"type:varchar(20);not null;default:'Pending'"`
 	DueDate     *time.Time `json:"dueDate,omitempty"`
 	CreatedAt   time.Time  `json:"createdAt"`
 	UpdatedAt   time.Time  `json:"updatedAt"`

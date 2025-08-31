@@ -25,7 +25,7 @@ func createTaskHandler(svc service.TaskService) gin.HandlerFunc {
 			abortJSON(c, http.StatusBadRequest, err.Error())
 			return
 		}
-		c.JSON(http.StatusCreated, task)
+		created(c, task)
 	}
 }
 
@@ -41,8 +41,8 @@ func parseID(c *gin.Context) (uint, bool) {
 
 func getTaskHandler(svc service.TaskService) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		id, ok := parseID(c)
-		if !ok {
+		id, okID := parseID(c)
+		if !okID {
 			return
 		}
 		task, err := svc.GetTask(c, id)
@@ -54,14 +54,14 @@ func getTaskHandler(svc service.TaskService) gin.HandlerFunc {
 			abortJSON(c, http.StatusInternalServerError, err.Error())
 			return
 		}
-		c.JSON(http.StatusOK, task)
+		ok(c, task)
 	}
 }
 
 func updateTaskHandler(svc service.TaskService) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		id, ok := parseID(c)
-		if !ok {
+		id, okID := parseID(c)
+		if !okID {
 			return
 		}
 		var req updateTaskRequest
@@ -80,14 +80,14 @@ func updateTaskHandler(svc service.TaskService) gin.HandlerFunc {
 			abortJSON(c, http.StatusBadRequest, err.Error())
 			return
 		}
-		c.JSON(http.StatusOK, task)
+		ok(c, task)
 	}
 }
 
 func deleteTaskHandler(svc service.TaskService) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		id, ok := parseID(c)
-		if !ok {
+		id, okID := parseID(c)
+		if !okID {
 			return
 		}
 		if err := svc.DeleteTask(c, id); err != nil {
@@ -111,15 +111,16 @@ func listTasksHandler(svc service.TaskService) gin.HandlerFunc {
 			ss := models.Status(s)
 			statusPtr = &ss
 		}
-		items, total, err := svc.ListTasks(c, service.ListFilter{Status: statusPtr, Page: page, PageSize: pageSize})
+		items, total, err := svc.ListTasks(c, service.ListFilter{
+			Status: statusPtr, Page: page, PageSize: pageSize,
+		})
 		if err != nil {
 			abortJSON(c, http.StatusInternalServerError, err.Error())
 			return
 		}
 		meta := pagination.BuildMeta(page, pageSize, total)
-		c.JSON(http.StatusOK, listTaskResponse{
-			Items: items,
-			Meta:  map[string]any{"page": meta.Page, "pageSize": meta.PageSize, "total": meta.Total, "totalPages": meta.TotalPages},
+		okWithMeta(c, items, map[string]any{
+			"page": meta.Page, "pageSize": meta.PageSize, "total": meta.Total, "totalPages": meta.TotalPages,
 		})
 	}
 }
